@@ -1,4 +1,4 @@
-package com.example.demo.tsikhamirau.Repository;
+package com.example.demo.tsikhamirau.repository;
 
 import com.example.demo.tsikhamirau.valueObjects.Player;
 import org.springframework.data.repository.CrudRepository;

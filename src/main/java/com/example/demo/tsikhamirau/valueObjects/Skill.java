@@ -8,16 +8,13 @@ import javax.persistence.*;
 @Table(name = "skill")
 public class Skill implements IPlayerObject {
 
-    @Id
-    @GeneratedValue(generator = "gen")
-    @GenericGenerator(name = "gen", strategy = "foreign", parameters = {@org.hibernate.annotations.Parameter(name = "property", value = "player")})
-    private int playerId;
-            @OneToOne
-            @PrimaryKeyJoinColumn
     private Player player;
     private int speed;
     private int passAccuracy;
     private int intelligence;
+
+    public Skill() {
+    }
 
     public Skill(int speed, int passAccuracy, int intelligence) {
         this.speed = speed;
@@ -25,7 +22,15 @@ public class Skill implements IPlayerObject {
         this.intelligence = intelligence;
     }
 
-    public Skill() {
+    @Id
+    @OneToOne
+    @JoinColumn(name = "player_id")
+    public Player getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
     }
 
     public int getSpeed() {

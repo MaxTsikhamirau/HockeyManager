@@ -6,7 +6,7 @@ import javax.persistence.*;
 @Table(name = "player")
 public class Player implements IPlayerObject {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int playerId;
     private String name;
     private String country;
@@ -15,6 +15,10 @@ public class Player implements IPlayerObject {
     private Skill skill;
     @OneToOne(mappedBy = "player", cascade = CascadeType.ALL)
     private Statistics statistics;
+
+    public int getPlayerId() {
+        return playerId;
+    }
 
     public String getName() {
         return name;
@@ -48,7 +52,6 @@ public class Player implements IPlayerObject {
 
     public Player() {
     }
-
 
     public static class Builder {
         private String name;
