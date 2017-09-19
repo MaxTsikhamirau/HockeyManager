@@ -4,12 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.example</groupId>
-    <artifactId>demo</artifactId>
+    <artifactId>HockeyManager</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>HockeyManager</name>
-    <description>Demo project for Spring Boot</description>
+    <description>Hockey Manager</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>

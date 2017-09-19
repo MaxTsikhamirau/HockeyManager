@@ -1,5 +1,7 @@
 package com.example.demo.tsikhamirau.valueObjects;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 
 @Entity
@@ -12,8 +14,10 @@ public class Player implements IPlayerObject {
     private String country;
     private int age;
     @OneToOne(mappedBy = "player", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private Skill skill;
     @OneToOne(mappedBy = "player", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private Statistics statistics;
 
     public int getPlayerId() {

@@ -1,19 +1,14 @@
 package com.example.demo.tsikhamirau.controllers;
 
 
+import com.example.demo.tsikhamirau.exceptions.UserNotFoundException;
 import com.example.demo.tsikhamirau.repository.PlayerRepository;
 import com.example.demo.tsikhamirau.service.IPlayerDAOService;
 import com.example.demo.tsikhamirau.valueObjects.Player;
-import com.example.demo.tsikhamirau.valueObjects.Skill;
-import com.example.demo.tsikhamirau.valueObjects.Statistics;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -38,11 +33,6 @@ public class PlayerConroller {
 
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<?> createPlayer(@RequestBody Player player) {
-//        new Player.Builder().setAge(10)
-//                .setCountry("Belarus")
-//                .setName("Daniil Tsikhamirau")
-//                .setSkill(new Skill(100, 100, 100))
-//                .setStatistics(new Statistics(20, 20)).build();
         Player newPlayer = playerRepository.save(player);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/players")
@@ -50,4 +40,21 @@ public class PlayerConroller {
         return ResponseEntity.created(location).build();
     }
 
+    @RequestMapping(value = "/{player_id}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deletePlayer(@PathVariable String player_id) {
+        ifUserExists(player_id);
+        playerRepository.delete(Integer.valueOf(player_id));
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    private void ifUserExists(String player_id) {
+        if (playerRepository.findOne(Integer.valueOf(player_id)) == null) {
+            throw new UserNotFoundException("Player {} doesn't exist", player_id);
+        }
+    }
+
+    @RequestMapping(value = "/{player_id}", method = RequestMethod.GET)
+    public ResponseEntity<?> getPlayer(@PathVariable String player_id) {
+        return new ResponseEntity<>(playerRepository.findOne(Integer.valueOf(player_id)), HttpStatus.OK);
+    }
 }
