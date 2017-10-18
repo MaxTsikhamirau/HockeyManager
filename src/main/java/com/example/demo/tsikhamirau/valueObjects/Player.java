@@ -9,7 +9,7 @@ import javax.persistence.*;
 public class Player implements IPlayerObject {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int playerId;
+    private Integer playerId;
     private String name;
     private String country;
     private int age;
@@ -20,7 +20,7 @@ public class Player implements IPlayerObject {
     @JsonManagedReference
     private Statistics statistics;
 
-    public int getPlayerId() {
+    public Integer getPlayerId() {
         return playerId;
     }
 
