@@ -8,11 +8,14 @@ import com.example.demo.tsikhamirau.valueObjects.IPlayerObject;
 import com.example.demo.tsikhamirau.valueObjects.Player;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
@@ -27,16 +30,16 @@ public class PlayerConroller {
     PlayerRepository playerRepository;
 
 
-    @RequestMapping(method = RequestMethod.GET)
+    @GetMapping
     @ApiOperation(value = "View a list of all players", response = ResponseEntity.class)
     public ResponseEntity<List<Player>> getPlayers() {
         System.out.println("playerDAOService = " + playerRepository.findAll());
         return new ResponseEntity<List<Player>>((List<Player>) playerRepository.findAll(), HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.POST)
+    @PostMapping
     @ApiOperation(value = "Create a new player", response = ResponseEntity.class)
-    public ResponseEntity<?> createPlayer(@RequestBody Player player) {
+    public ResponseEntity<?> createPlayer(@Valid @RequestBody Player player) {
         IPlayerObject newPlayer = playerRepository.save(player);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/players")
@@ -44,7 +47,7 @@ public class PlayerConroller {
         return ResponseEntity.created(location).build();
     }
 
-    @RequestMapping(value = "/{player_id}", method = RequestMethod.DELETE)
+    @DeleteMapping(value = "/{player_id}")
     @ApiOperation(value = "Delete a player by ID", response = ResponseEntity.class)
     public ResponseEntity<?> deletePlayer(@PathVariable String player_id) {
         ifUserExists(player_id);
@@ -52,15 +55,21 @@ public class PlayerConroller {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    private void ifUserExists(String player_id) {
-        if (!playerRepository.exists(Integer.valueOf(player_id))) {
-            throw new UserNotFoundException("Player {} doesn't exist", player_id);
-        }
+    private boolean ifUserExists(String player_id) {
+        return playerRepository.exists(Integer.valueOf(player_id));
     }
 
-    @RequestMapping(value = "/{player_id}", method = RequestMethod.GET)
+    @GetMapping(value = "/{player_id}")
     @ApiOperation(value = "Get player by ID", response = ResponseEntity.class)
-    public ResponseEntity<?> getPlayer(@PathVariable String player_id) {
-        return new ResponseEntity<>(playerRepository.findOne(Integer.valueOf(player_id)), HttpStatus.OK);
+    public Resource<Player> getPlayer(@PathVariable String player_id) {
+      if (!ifUserExists(player_id)) {
+        throw new UserNotFoundException("No such player found: " + player_id);
+      }
+        Player player = playerRepository.findOne(Integer.valueOf(player_id));
+        Resource<Player> resource = new Resource<>(player);
+        final ControllerLinkBuilder linkTo = ControllerLinkBuilder
+            .linkTo(ControllerLinkBuilder.methodOn(this.getClass()).getPlayers());
+        resource.add(linkTo.withSelfRel());
+        return resource;
     }
 }
