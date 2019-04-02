@@ -8,6 +8,8 @@ import com.example.demo.tsikhamirau.valueObjects.IPlayerObject;
 import com.example.demo.tsikhamirau.valueObjects.Player;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpStatus;
@@ -28,6 +30,9 @@ public class PlayerConroller {
 
     @Autowired
     PlayerRepository playerRepository;
+
+  @Autowired
+  ResourceBundleMessageSource messageSource;
 
 
     @GetMapping
@@ -63,7 +68,7 @@ public class PlayerConroller {
     @ApiOperation(value = "Get player by ID", response = ResponseEntity.class)
     public Resource<Player> getPlayer(@PathVariable String player_id) {
       if (!ifUserExists(player_id)) {
-        throw new UserNotFoundException("No such player found: " + player_id);
+        throw new UserNotFoundException(messageSource.getMessage("not.found.message", null, LocaleContextHolder.getLocale()) + player_id);
       }
         Player player = playerRepository.findOne(Integer.valueOf(player_id));
         Resource<Player> resource = new Resource<>(player);

@@ -26,4 +26,12 @@ public class UserNotFoundException extends RuntimeException {
         super(message, cause, enableSuppression, writableStackTrace);
         this.message = message1;
     }
+
+    @Override public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 }
