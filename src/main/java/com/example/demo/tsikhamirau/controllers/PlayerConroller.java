@@ -1,21 +1,23 @@
 package com.example.demo.tsikhamirau.controllers;
 
 
+import com.example.demo.tsikhamirau.exceptions.UserNotFoundException;
 import com.example.demo.tsikhamirau.repository.PlayerRepository;
 import com.example.demo.tsikhamirau.service.IPlayerDAOService;
+import com.example.demo.tsikhamirau.valueObjects.IPlayerObject;
 import com.example.demo.tsikhamirau.valueObjects.Player;
-import com.example.demo.tsikhamirau.valueObjects.Skill;
-import com.example.demo.tsikhamirau.valueObjects.Statistics;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
@@ -29,25 +31,50 @@ public class PlayerConroller {
     @Autowired
     PlayerRepository playerRepository;
 
+  @Autowired
+  ResourceBundleMessageSource messageSource;
 
-    @RequestMapping(method = RequestMethod.GET)
+
+    @GetMapping
+    @ApiOperation(value = "View a list of all players", response = ResponseEntity.class)
     public ResponseEntity<List<Player>> getPlayers() {
         System.out.println("playerDAOService = " + playerRepository.findAll());
         return new ResponseEntity<List<Player>>((List<Player>) playerRepository.findAll(), HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<?> createPlayer(@RequestBody Player player) {
-//        new Player.Builder().setAge(10)
-//                .setCountry("Belarus")
-//                .setName("Daniil Tsikhamirau")
-//                .setSkill(new Skill(100, 100, 100))
-//                .setStatistics(new Statistics(20, 20)).build();
-        Player newPlayer = playerRepository.save(player);
+    @PostMapping
+    @ApiOperation(value = "Create a new player", response = ResponseEntity.class)
+    public ResponseEntity<?> createPlayer(@Valid @RequestBody Player player) {
+        IPlayerObject newPlayer = playerRepository.save(player);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/players")
                 .buildAndExpand(newPlayer.getPlayerId()).toUri();
         return ResponseEntity.created(location).build();
     }
 
+    @DeleteMapping(value = "/{player_id}")
+    @ApiOperation(value = "Delete a player by ID", response = ResponseEntity.class)
+    public ResponseEntity<?> deletePlayer(@PathVariable String player_id) {
+        ifUserExists(player_id);
+        playerRepository.delete(Integer.valueOf(player_id));
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    private boolean ifUserExists(String player_id) {
+        return playerRepository.exists(Integer.valueOf(player_id));
+    }
+
+    @GetMapping(value = "/{player_id}")
+    @ApiOperation(value = "Get player by ID", response = ResponseEntity.class)
+    public Resource<Player> getPlayer(@PathVariable String player_id) {
+      if (!ifUserExists(player_id)) {
+        throw new UserNotFoundException(messageSource.getMessage("not.found.message", null, LocaleContextHolder.getLocale()) + player_id);
+      }
+        Player player = playerRepository.findOne(Integer.valueOf(player_id));
+        Resource<Player> resource = new Resource<>(player);
+        final ControllerLinkBuilder linkTo = ControllerLinkBuilder
+            .linkTo(ControllerLinkBuilder.methodOn(this.getClass()).getPlayers());
+        resource.add(linkTo.withSelfRel());
+        return resource;
+    }
 }

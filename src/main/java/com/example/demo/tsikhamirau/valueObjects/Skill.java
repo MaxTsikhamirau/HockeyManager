@@ -1,12 +1,14 @@
 package com.example.demo.tsikhamirau.valueObjects;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "skill")
-public class Skill implements IPlayerObject {
+public class Skill implements Serializable {
 
     private Player player;
     private int speed;
@@ -25,6 +27,7 @@ public class Skill implements IPlayerObject {
     @Id
     @OneToOne
     @JoinColumn(name = "player_id")
+    @JsonBackReference
     public Player getPlayer() {
         return player;
     }

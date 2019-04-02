@@ -1,22 +1,34 @@
 package com.example.demo.tsikhamirau.valueObjects;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import javax.persistence.*;
+import javax.validation.constraints.Past;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "player")
+@ApiModel(description = "All information about player")
 public class Player implements IPlayerObject {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int playerId;
+    private Integer playerId;
+    @Size(min =2 , message = "Name should have at least 2 characters ")
+    @ApiModelProperty(notes = "Name should be at least 2 characters")
     private String name;
+    @Size(min =2)
     private String country;
     private int age;
     @OneToOne(mappedBy = "player", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private Skill skill;
     @OneToOne(mappedBy = "player", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private Statistics statistics;
 
-    public int getPlayerId() {
+    public Integer getPlayerId() {
         return playerId;
     }
 
@@ -52,6 +64,7 @@ public class Player implements IPlayerObject {
 
     public Player() {
     }
+
 
     public static class Builder {
         private String name;

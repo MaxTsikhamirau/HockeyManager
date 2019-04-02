@@ -1,21 +1,39 @@
 package com.example.demo;
 
-import com.example.demo.tsikhamirau.repository.PlayerRepository;
-import com.example.demo.tsikhamirau.valueObjects.Player;
-import com.example.demo.tsikhamirau.valueObjects.Skill;
-import com.example.demo.tsikhamirau.valueObjects.Statistics;
-import org.springframework.boot.CommandLineRunner;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
+import org.springframework.boot.autoconfigure.web.WebMvcProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
+
+import java.util.Locale;
 
 @SpringBootApplication
+//@EnableOAuth2Sso
 public class UiApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(UiApplication.class, args);
 
       }
+
+  @Bean
+  public LocaleResolver localeResolver() {
+    AcceptHeaderLocaleResolver acceptHeaderLocaleResolver = new AcceptHeaderLocaleResolver();
+    acceptHeaderLocaleResolver.setDefaultLocale(Locale.US);
+    return acceptHeaderLocaleResolver;
+  }
+
+  @Bean
+  public ResourceBundleMessageSource messageSource() {
+    ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+    messageSource.setBasename("messages");
+    return messageSource;
+  }
 
 
 }
